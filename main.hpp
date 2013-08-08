@@ -12,6 +12,7 @@
 #include <vector>
 #include "geom_high.hpp"
 #include "map_prop.hpp"
+#include "obrwidget.hpp"
 #include "ster.hpp"
 #include "ust_obiekt.hpp"
 #include "bmpread.hpp"
@@ -511,10 +512,11 @@ protected:
         void initializeGL();
 	bool event (QEvent * event);
 };
-class SimpleApp : public QMainWindow, sterowanie
+class SimpleApp : public QMainWindow, sterowanie, public MapaReceiver
 {
       Q_OBJECT
 public:
+	void onPaint();
 	bool loaded;
 	ustawatrybuty* atr1;
 	string sciezka;
@@ -548,6 +550,7 @@ QPushButton* a7;
 	QPushButton* a18;
 	QPushButton* a19;
 	QPushButton* a20;
+	MapaWidget* ccc5;
 	void listy_zmienione();
       	SimpleApp(QWidget *parent, string scz);
       	~SimpleApp();

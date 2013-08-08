@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'main.hpp'
 **
-** Created: Tue Aug 6 17:36:25 2013
+** Created: Thu Aug 8 23:50:37 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -333,6 +333,8 @@ void *SimpleApp::qt_metacast(const char *_clname)
         return static_cast<void*>(const_cast< SimpleApp*>(this));
     if (!strcmp(_clname, "sterowanie"))
         return static_cast< sterowanie*>(const_cast< SimpleApp*>(this));
+    if (!strcmp(_clname, "MapaReceiver"))
+        return static_cast< MapaReceiver*>(const_cast< SimpleApp*>(this));
     return QMainWindow::qt_metacast(_clname);
 }
 

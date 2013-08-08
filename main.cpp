@@ -424,8 +424,14 @@ void SimpleApp::listy_zmienione()
 	//if(loaded)
 	//	glScene->akttryb->klucz(Qt::Key_D);
 }
+void SimpleApp::onPaint()
+{
+	ste->rysuj(alfa);
+}
 SimpleApp::SimpleApp(QWidget *parent, string scz):QMainWindow(parent), sciezka(scz)
 {
+
+	ccc5=new MapaWidget(this, this);
 	this->setGeometry(0, 0, 500, 500);
 	loaded=0;
 	ste=this;
@@ -475,6 +481,7 @@ SimpleApp::SimpleApp(QWidget *parent, string scz):QMainWindow(parent), sciezka(s
 	mainLayoutt->addWidget(gornywidget, 0, 0, 1, 2);
 	mainLayoutt->addWidget(glScene, 1, 0);
 	mainLayoutt->addWidget(atr1, 1, 1);
+	mainLayoutt->addWidget(ccc5, 1, 2);
 	mainLayoutt->addWidget(dolnywidget, 2, 0);
 	widget->setLayout(mainLayoutt);
 	gornywidget->setMaximumHeight(95);
