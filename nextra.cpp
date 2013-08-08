@@ -155,6 +155,10 @@ bool nextra::getpunkt_all(void(*funkcja1)(string nazwa, PUNKT pkt))
 	}
 	return true;
 }
+int nextra::getpunkt_size()
+{
+	return punkty.size();
+}
 bool nextra::getkrzywa_all(void(*funkcja1)(string nazwa, LINIA pkt), void(*funkcja2)(string nazwa, LINIOLUK pkt))
 {
 	map<string, LINIA_PLUS>::iterator it1=linie.begin();
@@ -170,6 +174,10 @@ bool nextra::getkrzywa_all(void(*funkcja1)(string nazwa, LINIA pkt), void(*funkc
 		it2++;
 	}
 	return true;
+}
+int getkrzywa_size()
+{
+	return linie.size()+linioluki.size();
 }
 bool nextra::getpunkt_key(string key, string value, void(*funkcja1)(string, PUNKT))
 {
@@ -230,4 +238,19 @@ bool nextra::getkrzywa_key(string key, string value, bool(*cmp)(string, string),
 		it2++;
 	}
 	return true;
+}
+map <string, string> nextra::getpunkt_prop(string nazwa, void(*funkcja1)(PUNKT))
+{
+	funkcja1(punkty[nazwa].pkt);
+	return punkty[nazwa].prop;
+}
+map <string, string> nextra::getkrzywa_prop(string nazwa, void(*funkcja1)(LINIA), void(*funkcja2)(LINIOLUK))
+{
+	if(linie.find(nazwa)==linie.end())
+	{
+		funkcja2(linioluki[nazwa].llk);
+		return linioluki[nazwa].prop;
+	}
+	funkcja1(linie[nazwa].lin);
+	return linie[nazwa].prop;
 }

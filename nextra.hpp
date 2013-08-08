@@ -48,6 +48,10 @@ class nextra
 	bool deletekrzywa(string nazwa);
 	bool getpunkt_all(void(*funkcja1)(string nazwa, PUNKT pkt));
 	bool getkrzywa_all(void(*funkcja1)(string nazwa, LINIA pkt), void(*funkcja2)(string nazwa, LINIOLUK pkt));
+	int getpunkt_size();
+	int getkrzywa_size();
+	map <string, string> getpunkt_prop(string nazwa, void(*funkcja1)(PUNKT));
+	map <string, string> getkrzywa_prop(string nazwa, void(*funkcja1)(LINIA), void(*funkcja2)(LINIOLUK));
 	bool getpunkt_key(string key, string value, void(*funkcja1)(string, PUNKT));
 	bool getpunkt_key(string key, string value, bool(*cmp)(string, string), void(*funkcja1)(string, PUNKT));
 	bool getkrzywa_key(string key, string value, void(*funkcja1)(string, LINIA), void(*funkcja2)(string, LINIOLUK));
