@@ -1,17 +1,20 @@
 #include "obrwidget.hpp"
-MapaWidget::MapaWidget(QWidget* parent, MapaReceiver* rec) : QWidget(parent), map_prop(600, 600, -1000, 2100, 2100, -1000), receiver(rec)
+MapaWidget::MapaWidget(QWidget* parent, MapaReceiver* rec) : QWidget(parent), map_prop(600, 650, -1000, 2100, 2100, -1000), receiver(rec)
 {
 	tryb_move=0;
 	plus=new QPushButton(this);
 	minus=new QPushButton(this);
 	obraz2=new utpWidget(this);
+	checker=new QRadioButton(this);
 	connect(plus, SIGNAL(clicked()), this, SLOT(modPlus()));
 	connect(minus, SIGNAL(clicked()), this, SLOT(modMinus()));
-	plus->setGeometry(0,0,100, 100);
+	plus->setGeometry(0,0,70, 40);
 	plus->setText("+");
-	minus->setGeometry(100,0,100, 100);
+	minus->setGeometry(80,0,70, 40);
 	minus->setText("-");
-	obraz2->setGeometry(0,100,600, 600);
+	checker->setGeometry(160,0,150, 40);
+	checker->setText("przyciaganie");
+	obraz2->setGeometry(0,50,600, 650);
 }
 MapaWidget::~MapaWidget()
 {
@@ -27,7 +30,12 @@ void MapaWidget::onMouseClick(bool left, int x, int y)
 		sy=y;
 	}
 	else
-		receiver->onMouseClick(starex(x), starey(y));
+	{
+		PUNKT przek1=PUNKT(starex(x), starey(y));
+		if(checker->isChecked())
+			przek1=siatka(przek1);
+		receiver->onMouseClick(przek1.x, przek1.y);
+	}
 }
 void MapaWidget::onMouseMove(int x, int y)
 {

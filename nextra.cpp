@@ -1,6 +1,18 @@
 #include "nextra.hpp"
 #include <set>
 using namespace std;
+int nextra::punktysize()
+{
+	return punkty.size();
+}
+int nextra::liniesize()
+{
+	return linie.size();
+}
+int nextra::liniolukisize()
+{
+	return linioluki.size();
+}
 bool nextra::setpunkt(string nazwa, PUNKT pkt)
 {
 	if(punkty.find(nazwa)!=punkty.end())
@@ -10,11 +22,25 @@ bool nextra::setpunkt(string nazwa, PUNKT pkt)
 	punkty[nazwa]=nowy;
 	return true;
 }
+
+string nextra::randnazwa()
+{
+	string wynik;
+	for(int i=0; i<10; i++)
+	{
+		char kkp=rand()%26+97;
+		wynik+=kkp;
+	}
+	return wynik;
+}
+
 bool nextra::setkrzywa(string nazwa, string pkt_start, string pkt_stop)
 {
 	if(punkty.find(pkt_start)==punkty.end())
 		return false;
 	if(punkty.find(pkt_stop)==punkty.end())
+		return false;
+	if(linioluki.find(nazwa)!=linioluki.end())
 		return false;
 	if(linie.find(nazwa)!=linie.end())
 		return false;
@@ -33,6 +59,8 @@ bool nextra::setkrzywa(string nazwa, string pkt_start, string pkt_stop, double k
 		return false;
 	if(punkty.find(pkt_stop)==punkty.end())
 		return false;
+	if(linie.find(nazwa)!=linie.end())
+		return false;
 	if(linioluki.find(nazwa)!=linioluki.end())
 		return false;
 	LINIOLUK_PLUS nowa;
@@ -44,6 +72,8 @@ bool nextra::setkrzywa(string nazwa, string pkt_start, string pkt_stop, double k
 	punkty[pkt_stop].linie_powiazane.insert(nazwa);
 	nowa.llk=LINIOLUK(punkty[pkt_start].pkt, punkty[pkt_stop].pkt, k1, k2);
 	linioluki[nazwa]=nowa;
+	cout<<"DODANO "<<nazwa<<" "<<(linioluki.find(nazwa)==linioluki.end())<<endl;
+	cout<<"D2DAN2 "<<(linie.find(nazwa)==linie.end())<<endl;
 	return true;
 }
 bool nextra::setpunkt_prop(string nazwa, string key, string value)
@@ -51,20 +81,38 @@ bool nextra::setpunkt_prop(string nazwa, string key, string value)
 	if(punkty.find(nazwa)==punkty.end())
 		return false;
 	punkty[nazwa].prop[key]=value;
+	if(value=="")
+	{
+		punkty[nazwa].prop.erase(punkty[nazwa].prop.find(key));
+			return true;
+	}
 	return true;
 }
 bool nextra::setkrzywa_prop(string nazwa, string key, string value)
 {
 	if(linie.find(nazwa)==linie.end())
 	{
+		cout<<"s1"<<endl;
 		if(linioluki.find(nazwa)==linioluki.end())
 			return false;
 		linioluki[nazwa].prop[key]=value;
+		if(value=="")
+		{
+			linioluki[nazwa].prop.erase(linioluki[nazwa].prop.find(key));
+				return true;
+		}
+		return true;
 	}
 	linie[nazwa].prop[key]=value;
+	if(value=="")
+	{
+		linie[nazwa].prop.erase(linie[nazwa].prop.find(key));
+			return true;
+	}
+
 	return true;
 }
-bool nextra::deletepunkt_prop(string nazwa, string key)
+/*bool nextra::deletepunkt_prop(string nazwa, string key)
 {
 	if(punkty.find(nazwa)==punkty.end())
 		return false;
@@ -90,7 +138,7 @@ bool nextra::deletekrzywa_prop(string nazwa, string key)
 			return false;
 	linie[nazwa].prop.erase(it1);
 	return true;
-}
+}*/
 bool nextra::changepunkt(string nazwa, PUNKT newpoz)
 {
 	if(punkty.find(nazwa)==punkty.end())
@@ -118,6 +166,7 @@ bool nextra::changepunkt(string nazwa, PUNKT newpoz)
 }
 bool nextra::deletepunkt(string nazwa)
 {
+	cout<<"DELETING "<<nazwa<<endl;
 	if(punkty.find(nazwa)==punkty.end())
 		return false;
 	map<string, PUNKT_PLUS>::iterator it1=punkty.find(nazwa);
@@ -132,101 +181,181 @@ bool nextra::deletepunkt(string nazwa)
 }
 bool nextra::deletekrzywa(string nazwa)
 {
+	cout<<"DELETING_krzywa "<<nazwa<<endl;
 	if(linie.find(nazwa)==linie.end())
 	{
+		cout<<"alfa"<<endl;
 		if(linioluki.find(nazwa)==linioluki.end())
 			return false;
+		cout<<"beta"<<endl;
 		LINIOLUK_PLUS it3=linioluki[nazwa];
 		(punkty[it3.pkt1]).linie_powiazane.erase(punkty[it3.pkt1].linie_powiazane.find(nazwa));
 		(punkty[it3.pkt2]).linie_powiazane.erase(punkty[it3.pkt2].linie_powiazane.find(nazwa));
+		linioluki.erase(linioluki.find(nazwa));
+		return true;
 	}
+	cout<<"gamma"<<endl;
 	LINIA_PLUS it3=linie[nazwa];
 	punkty[it3.pkt1].linie_powiazane.erase(punkty[it3.pkt1].linie_powiazane.find(nazwa));
 	punkty[it3.pkt2].linie_powiazane.erase(punkty[it3.pkt2].linie_powiazane.find(nazwa));
+	linie.erase(linie.find(nazwa));
 	return true;
 }
-bool nextra::getpunkt_all(void(*funkcja1)(string nazwa, PUNKT pkt))
+bool nextra::getpunkt(string nazwa, PUNKT& pkt)
+{
+	if(punkty.find(nazwa)==punkty.end())
+		return false;
+	pkt=punkty[nazwa].pkt;
+	return true;
+}
+int nextra::getkrzywa(string nazwa, LINIA& lin, LINIOLUK& llk)
+{
+	if(linie.find(nazwa)==linie.end())
+	{
+		if(linioluki.find(nazwa)==linioluki.end())
+			return 0;
+		LINIOLUK_PLUS it3=linioluki[nazwa];
+		llk=it3.llk;
+		return 1;
+	}
+	LINIA_PLUS it3=linie[nazwa];
+	lin=it3.lin;
+	return 2;
+}
+pair <string, string> nextra::getkrzywass(string nazwa)
+{
+	if(linie.find(nazwa)==linie.end())
+	{
+		if(linioluki.find(nazwa)==linioluki.end())
+			return pair<string, string>("", "");
+		LINIOLUK_PLUS it3=linioluki[nazwa];
+		return pair<string, string>(it3.pkt1, it3.pkt2);
+	}
+	LINIA_PLUS it3=linie[nazwa];
+	return pair<string, string>(it3.pkt1, it3.pkt2);
+}
+map <string, string> nextra::getpunkt_prop(string nazwa)
+{
+	map<string, string> wyniktmp;
+	if(punkty.find(nazwa)==punkty.end())
+		return wyniktmp;
+	return punkty[nazwa].prop;
+}
+map <string, string> nextra::getkrzywa_prop(string nazwa)
+{	
+	map<string, string> wyniktmp;
+	if(linie.find(nazwa)==linie.end())
+	{
+		if(linioluki.find(nazwa)==linioluki.end())
+			return wyniktmp;
+		LINIOLUK_PLUS it3=linioluki[nazwa];
+		return it3.prop;
+	}
+	LINIA_PLUS it3=linie[nazwa];
+	return it3.prop;
+
+}
+bool nextra::getpunkt_all(funkcja_receiver& fr1)
 {
 	map <string, PUNKT_PLUS>::iterator it1=punkty.begin();
 	while(it1!=punkty.end())
 	{
-		funkcja1(it1->first, (it1->second).pkt);
+		fr1.funkcja3(it1->first, (it1->second).pkt);
 		it1++;
 	}
 	return true;
 }
-bool nextra::getkrzywa_all(void(*funkcja1)(string nazwa, LINIA pkt), void(*funkcja2)(string nazwa, LINIOLUK pkt))
+bool nextra::getkrzywa_all(funkcja_receiver& fr1)
 {
 	map<string, LINIA_PLUS>::iterator it1=linie.begin();
+	cout<<linie.size()<<endl;
 	while(it1!=linie.end())
 	{
-		funkcja1(it1->first, (it1->second).lin);
+		fr1.funkcja1(it1->first, (it1->second).lin);
 		it1++;
 	}
 	map<string, LINIOLUK_PLUS>::iterator it2=linioluki.begin();
 	while(it2!=linioluki.end())
 	{
-		funkcja2(it2->first, (it2->second).llk);
+		fr1.funkcja2(it2->first, (it2->second).llk);
 		it2++;
 	}
 	return true;
 }
-bool nextra::getpunkt_key(string key, string value, void(*funkcja1)(string, PUNKT))
+bool nextra::getpunkt_key(string key, string value, funkcja_receiver& fr1)
 {
 	map <string, PUNKT_PLUS>::iterator it1=punkty.begin();
 	while(it1!=punkty.end())
 	{
-		if(it1->first==value)
-			funkcja1(it1->first, (it1->second).pkt);
+		string keycmp;
+		if((it1->second).prop.find(key)!=(it1->second).prop.end())
+			keycmp=(it1->second).prop[key];
+		if(keycmp==value)
+			fr1.funkcja3(it1->first, (it1->second).pkt);
 		it1++;
 	}
 	return true;
 }
 
-bool nextra::getpunkt_key(string key, string value, bool(*cmp)(string, string), void(*funkcja1)(string, PUNKT))
+bool nextra::getpunkt_keycmp(string key, string value, funkcja_receiver& fr1)
 {
 	map <string, PUNKT_PLUS>::iterator it1=punkty.begin();
 	while(it1!=punkty.end())
-	{
-		if(cmp(it1->first, value))
-			funkcja1(it1->first, (it1->second).pkt);
+	{	
+		string keycmp;
+		if((it1->second).prop.find(key)!=(it1->second).prop.end())
+			keycmp=(it1->second).prop[key];
+		if(fr1.cmp(keycmp, value))
+			fr1.funkcja3(it1->first, (it1->second).pkt);
 		it1++;
 	}
 	return true;
 }
 
-bool nextra::getkrzywa_key(string key, string value, void(*funkcja1)(string, LINIA), void(*funkcja2)(string, LINIOLUK))
+bool nextra::getkrzywa_key(string key, string value, funkcja_receiver& fr1)
 {
 	map<string, LINIA_PLUS>::iterator it1=linie.begin();
 	while(it1!=linie.end())
-	{
-		if(value==it1->first)
-			funkcja1(it1->first, (it1->second).lin);
+	{	
+		string keycmp;
+		if((it1->second).prop.find(key)!=(it1->second).prop.end())
+			keycmp=(it1->second).prop[key];
+		if(value==keycmp)
+			fr1.funkcja1(it1->first, (it1->second).lin);
 		it1++;
 	}
 	map<string, LINIOLUK_PLUS>::iterator it2=linioluki.begin();
 	while(it2!=linioluki.end())
-	{
-		if(value==it2->first)
-			funkcja2(it2->first, (it2->second).llk);
+	{	
+		string keycmp;
+		if((it2->second).prop.find(key)!=(it2->second).prop.end())
+			keycmp=(it2->second).prop[key];
+		if(value==keycmp)
+			fr1.funkcja2(it2->first, (it2->second).llk);
 		it2++;
 	}
 	return true;
 }
-bool nextra::getkrzywa_key(string key, string value, bool(*cmp)(string, string), void(*funkcja1)(string, LINIA), void(*funkcja2)(string, LINIOLUK))
+bool nextra::getkrzywa_keycmp(string key, string value, funkcja_receiver& fr1)
 {
 	map<string, LINIA_PLUS>::iterator it1=linie.begin();
 	while(it1!=linie.end())
-	{
-		if(cmp(it1->first, value))
-			funkcja1(it1->first, (it1->second).lin);
+	{	
+		string keycmp;
+		if((it1->second).prop.find(key)!=(it1->second).prop.end())
+			keycmp=(it1->second).prop[key];
+		if(fr1.cmp(keycmp, value))
+			fr1.funkcja1(it1->first, (it1->second).lin);
 		it1++;
 	}
 	map<string, LINIOLUK_PLUS>::iterator it2=linioluki.begin();
 	while(it2!=linioluki.end())
-	{
-		if(cmp(it2->first, value))
-			funkcja2(it2->first, (it2->second).llk);
+	{	
+		string keycmp;
+		if((it2->second).prop.find(key)!=(it2->second).prop.end())
+			keycmp=(it2->second).prop[key];
+		if(fr1.cmp(keycmp, value))
+			fr1.funkcja2(it2->first, (it2->second).llk);
 		it2++;
 	}
 	return true;
